@@ -38,7 +38,7 @@ npm run reset-project
 ### API Integration
 - Central API service: `services/api.ts`
 - Backend communication through `pokeAPI` singleton
-- API base URL configurable via `EXPO_PUBLIC_API_URL` environment variable
+- API base URL configurable via `BACKEND_API_URL` environment variable
 - Comprehensive TypeScript interfaces for Pokémon data structures
 - Built-in error handling and request timeouts (8 seconds default)
 

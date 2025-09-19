@@ -24,7 +24,7 @@ Build a Pokédex application using React Native with Expo Web that demonstrates 
 
 ### Database & Infrastructure
 - Managed database service (Supabase, Neon, or similar) ✅
-- Docker containerization
+- Docker containerization ✅
 - Kubernetes deployment for the application layer
 - GitHub repository with CI/CD pipeline
 

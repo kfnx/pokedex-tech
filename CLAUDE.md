@@ -98,7 +98,7 @@ pokedex-voltron/
 
 ### Environment Setup
 - Backend requires `.env` with `DATABASE_URL` and `DIRECT_URL` for Supabase
-- Frontend uses `EXPO_PUBLIC_API_URL` to configure backend connection
+- Frontend uses `BACKEND_API_URL` to configure backend connection
 - E2E tests automatically start both frontend and backend servers
 
 ### Testing Strategy

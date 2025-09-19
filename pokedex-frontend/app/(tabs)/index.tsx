@@ -75,7 +75,7 @@ export default function HomeScreen() {
     return (
       <ThemedView style={styles.emptyContainer}>
         <ThemedText style={styles.emptyText}>
-          {searchQuery ? 'No Pokemon found' : 'No Pokemon available'}
+          No Pokemon available
         </ThemedText>
       </ThemedView>
     );

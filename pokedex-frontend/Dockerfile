@@ -1,42 +1,27 @@
-# Use Node.js LTS version
-FROM node:18-alpine
+FROM node:22-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies needed for Expo and native modules
 RUN apk add --no-cache \
     git \
     python3 \
     make \
     g++
 
-# Copy package files
-COPY package.json package-lock.json* bun.lock* ./
+COPY package.json bun.lock* ./
 
-# Install dependencies
-# Check if bun.lock exists, if so use bun, otherwise use npm
-RUN if [ -f "bun.lock" ]; then \
-        npm install -g bun && bun install; \
-    else \
-        npm ci; \
-    fi
+RUN npm install -g bun && bun install
 
-# Copy source code
 COPY . .
 
-# Create .env file if it doesn't exist
 RUN touch .env
 
-# Expose the port that Expo dev server runs on
+RUN npx expo export --platform web
+
+RUN npm install -g serve
+
 EXPOSE 8081
-EXPOSE 19000
-EXPOSE 19001
-EXPOSE 19002
 
-# Set environment variables
-ENV NODE_ENV=development
-ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+ENV NODE_ENV=production
 
-# Start the Expo development server
-CMD ["npx", "expo", "start", "--host", "tunnel"]
+CMD ["serve", "-s", "dist", "-l", "8081"]
