@@ -9,23 +9,21 @@ import {
   Text,
   useWindowDimensions
 } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { PokemonCard } from '@/components/pokemon/pokemon-card';
 import { PokemonSkeleton } from '@/components/pokemon/pokemon-skeleton';
 import { useInfinitePokemonList } from '@/hooks/use-pokemon';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Pokemon } from '@/services/api';
 
 export default function HomeScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const { width } = useWindowDimensions();
 
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'background');
+  const backgroundColor = '#000000';
+  const textColor = '#FFFFFF';
   
   // Calculate number of columns based on screen width
   const numColumns = useMemo(() => {
@@ -43,7 +41,6 @@ export default function HomeScreen() {
     loadMore,
   } = useInfinitePokemonList({
     limit: 20,
-    search: searchQuery,
   });
 
   const handlePokemonPress = useCallback((pokemon: Pokemon) => {
@@ -52,7 +49,6 @@ export default function HomeScreen() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    setSearchQuery('');
     setTimeout(() => {
       setRefreshing(false);
     }, 1000);
@@ -89,15 +85,10 @@ export default function HomeScreen() {
     return (
       <ThemedView style={[styles.container, { backgroundColor }]}>
         <View style={styles.header}>
-          <ThemedText type="title" style={styles.title}>Pokédex</ThemedText>
-          <TextInput
-            style={[styles.searchInput, { borderColor, color: textColor }]}
-            placeholder="Search Pokemon..."
-            placeholderTextColor={textColor + '80'}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            autoCapitalize="none"
-            autoCorrect={false}
+          <Image
+            source={require('@/assets/images/pokedex.png')}
+            style={styles.headerLogo}
+            contentFit="contain"
           />
         </View>
         <FlatList
@@ -124,15 +115,10 @@ export default function HomeScreen() {
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.title}>Pokédex</ThemedText>
-        <TextInput
-          style={[styles.searchInput, { borderColor, color: textColor }]}
-          placeholder="Search Pokemon..."
-          placeholderTextColor={textColor + '80'}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          autoCapitalize="none"
-          autoCorrect={false}
+        <Image
+          source={require('@/assets/images/pokedex.png')}
+          style={styles.headerLogo}
+          contentFit="contain"
         />
       </View>
 
@@ -171,19 +157,11 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    paddingTop: 60,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+  headerLogo: {
+    height: 60,
+    width: '100%',
     marginBottom: 16,
-  },
-  searchInput: {
-    height: 44,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
   },
   listContent: {
     paddingHorizontal: 16,

@@ -21,6 +21,10 @@ const MAPPING = {
   'list.bullet': 'list',
   'magnifyingglass': 'search',
   'chart.bar': 'bar-chart',
+  'arrow.down': 'keyboard-arrow-down',
+  'play': 'play-arrow',
+  'pause': 'pause',
+  'clock': 'access-time',
 } as IconMapping;
 
 /**

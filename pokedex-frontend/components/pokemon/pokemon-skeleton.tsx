@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 export function PokemonSkeleton() {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
-  const backgroundColor = useThemeColor({}, 'background');
-  const skeletonColor = useThemeColor({ light: '#e0e0e0', dark: '#444' }, 'background');
+  const backgroundColor = '#000000';
+  const skeletonColor = '#444444';
 
   useEffect(() => {
     const animation = Animated.loop(

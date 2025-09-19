@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
 
 interface ErrorViewProps {
   error: string;
@@ -11,9 +10,9 @@ interface ErrorViewProps {
 }
 
 export function ErrorView({ error, onRetry, title = 'Something went wrong' }: ErrorViewProps) {
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'border');
+  const backgroundColor = '#000000';
+  const textColor = '#FFFFFF';
+  const borderColor = '#333333';
 
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>

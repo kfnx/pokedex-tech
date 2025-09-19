@@ -8,22 +8,22 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { PokemonCard } from '@/components/pokemon/pokemon-card';
 import { usePokemonSearch } from '@/hooks/use-pokemon';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Pokemon } from '@/services/api';
 
 export default function TabTwoScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'border');
-  const activeBgColor = useThemeColor({ light: '#007AFF', dark: '#0A84FF' }, 'tint');
+  const backgroundColor = '#000000';
+  const textColor = '#FFFFFF';
+  const borderColor = '#333333';
+  const activeBgColor = '#0A84FF';
 
   const { results, loading, error } = usePokemonSearch(searchQuery);
 
@@ -50,7 +50,11 @@ export default function TabTwoScreen() {
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.title}>Search Pokémon</ThemedText>
+        <Image
+          source={require('@/assets/images/pokedex.png')}
+          style={styles.headerLogo}
+          contentFit="contain"
+        />
         <TextInput
           style={[styles.searchInput, { borderColor, color: textColor }]}
           placeholder="Search by name, type, or ability..."
@@ -175,11 +179,10 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    paddingTop: 60,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+  headerLogo: {
+    height: 60,
+    width: '100%',
     marginBottom: 16,
   },
   searchInput: {

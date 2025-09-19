@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: pokedex-postgres
+    environment:
+      POSTGRES_DB: pokedex
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./pokedex-backend
+      dockerfile: Dockerfile
+    container_name: pokedex-backend
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres123@postgres:5432/pokedex"
+      DIRECT_URL: "postgresql://postgres:postgres123@postgres:5432/pokedex"
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bun", "--print", "await fetch('http://localhost:3000/health').then(r => r.json())"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    volumes:
+      - ./pokedex-backend/prisma:/app/prisma
+
+  # Frontend (Expo Web)
+  frontend:
+    build:
+      context: ./pokedex-frontend
+      dockerfile: Dockerfile
+    container_name: pokedex-frontend
+    environment:
+      EXPO_PUBLIC_API_URL: "http://localhost:3000"
+      NODE_ENV: development
+      EXPO_DEVTOOLS_LISTEN_ADDRESS: 0.0.0.0
+    ports:
+      - "8081:8081"  # Expo web
+      - "19000:19000" # Expo dev tools
+      - "19001:19001" # Expo dev tools
+      - "19002:19002" # Expo dev tools
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # Database migrations (run once)
+  migrate:
+    build:
+      context: ./pokedex-backend
+      dockerfile: Dockerfile
+    container_name: pokedex-migrate
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres123@postgres:5432/pokedex"
+      DIRECT_URL: "postgresql://postgres:postgres123@postgres:5432/pokedex"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["bunx", "prisma", "migrate", "deploy"]
+    restart: "no"
+    volumes:
+      - ./pokedex-backend/prisma:/app/prisma
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: pokedex-network

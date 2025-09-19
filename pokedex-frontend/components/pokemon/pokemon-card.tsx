@@ -3,7 +3,6 @@ import { StyleSheet, Pressable, View } from 'react-native';
 import { Image } from 'expo-image';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { Pokemon } from '@/services/api';
 
 interface PokemonCardProps {
@@ -33,9 +32,9 @@ const typeColors: Record<string, string> = {
 };
 
 export function PokemonCard({ pokemon, onPress }: PokemonCardProps) {
-  const backgroundColor = useThemeColor({}, 'background');
-  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'background');
-  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = '#000000';
+  const borderColor = '#333333';
+  const textColor = '#FFFFFF';
 
   const formatId = (id: number) => `#${id.toString().padStart(3, '0')}`;
 

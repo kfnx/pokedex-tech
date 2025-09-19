@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -13,7 +13,6 @@ import {
 import { Image } from 'expo-image';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useThemeColor } from '@/hooks/use-theme-color';
 import { useInfinitePokemonList } from '@/hooks/use-pokemon';
 import { PokemonCard } from '@/components/pokemon/pokemon-card';
 import { Pokemon, pokeAPI } from '@/services/api';
@@ -35,10 +34,10 @@ export default function CompareScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const { width } = useWindowDimensions();
 
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const borderColor = useThemeColor({ light: '#e0e0e0', dark: '#333' }, 'background');
-  const cardBg = useThemeColor({ light: '#f5f5f5', dark: '#222' }, 'background');
+  const backgroundColor = '#000000';
+  const textColor = '#FFFFFF';
+  const borderColor = '#333333';
+  const cardBg = '#222222';
 
   const {
     pokemon: allPokemon,
@@ -183,8 +182,17 @@ export default function CompareScreen() {
 
   if (loading) {
     return (
-      <ThemedView style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color={textColor} />
+      <ThemedView style={styles.container}>
+        <View style={styles.header}>
+          <Image
+            source={require('@/assets/images/pokedex.png')}
+            style={styles.headerLogo}
+            contentFit="contain"
+          />
+        </View>
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color={textColor} />
+        </View>
       </ThemedView>
     );
   }
@@ -193,7 +201,11 @@ export default function CompareScreen() {
     <ThemedView style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <ThemedText type="title" style={styles.title}>Compare Pokemon</ThemedText>
+          <Image
+            source={require('@/assets/images/pokedex.png')}
+            style={styles.headerLogo}
+            contentFit="contain"
+          />
           <ThemedText style={styles.subtitle}>
             Select up to 3 Pokemon to compare their stats
           </ThemedText>
@@ -321,11 +333,10 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    paddingTop: 60,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+  headerLogo: {
+    height: 60,
+    width: '100%',
     marginBottom: 8,
   },
   subtitle: {
