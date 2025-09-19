@@ -1,0 +1,24 @@
+{
+  "name": "express",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir=dist --target=bun",
+    "start": "NODE_ENV=production bun run src/index.ts",
+    "start:compiled": "bun run dist/index.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.5",
+    "express": "5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.3",
+    "@types/node": "22.15.32",
+    "prisma": "^6.16.2",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.2"
+  }
+}

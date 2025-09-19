@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Pokemon {
+  id                 Int      @id
+  name               String   @unique
+  height             Int
+  weight             Int
+  baseExperience     Int?
+  order              Int?
+  isDefault          Boolean  @default(true)
+  spriteUrl          String?
+  spriteFrontDefault String?
+  spriteBackDefault  String?
+  spriteFrontShiny   String?
+  spriteBackShiny    String?
+  cries              Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  lastFetched        DateTime @default(now())
+
+  stats     PokemonStat[]
+  types     PokemonType[]
+  abilities PokemonAbility[]
+  moves     PokemonMove[]
+  species   PokemonSpecies?  @relation(fields: [speciesId], references: [id])
+  speciesId Int?
+
+  @@map("pokemon")
+}
+
+model PokemonSpecies {
+  id                   Int      @id
+  name                 String   @unique
+  order                Int?
+  genderRate           Int?
+  captureRate          Int?
+  baseHappiness        Int?
+  isBaby               Boolean  @default(false)
+  isLegendary          Boolean  @default(false)
+  isMythical           Boolean  @default(false)
+  hatchCounter         Int?
+  hasGenderDifferences Boolean  @default(false)
+  formsSwitchable      Boolean  @default(false)
+  growthRate           String?
+  pokedexNumbers       Json?
+  eggGroups            Json?
+  color                String?
+  shape                String?
+  habitat              String?
+  generation           Int?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  lastFetched          DateTime @default(now())
+
+  pokemon          Pokemon[]
+  evolutionChain   EvolutionChain? @relation(fields: [evolutionChainId], references: [id])
+  evolutionChainId Int?
+
+  @@map("pokemon_species")
+}
+
+model Type {
+  id              Int      @id
+  name            String   @unique
+  damageRelations Json?
+  gameIndices     Json?
+  generation      Int?
+  moveDamageClass String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastFetched     DateTime @default(now())
+
+  pokemonTypes PokemonType[]
+  moveTypes    Move[]
+
+  @@map("types")
+}
+
+model Ability {
+  id                Int      @id
+  name              String   @unique
+  isMainSeries      Boolean  @default(true)
+  generation        Int?
+  effectEntries     Json?
+  flavorTextEntries Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastFetched       DateTime @default(now())
+
+  pokemonAbilities PokemonAbility[]
+
+  @@map("abilities")
+}
+
+model Move {
+  id                Int      @id
+  name              String   @unique
+  accuracy          Int?
+  effectChance      Int?
+  pp                Int?
+  priority          Int      @default(0)
+  power             Int?
+  damageClass       String?
+  effectEntries     Json?
+  flavorTextEntries Json?
+  generation        Int?
+  meta              Json?
+  target            String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastFetched       DateTime @default(now())
+
+  type         Type          @relation(fields: [typeId], references: [id])
+  typeId       Int
+  pokemonMoves PokemonMove[]
+
+  @@map("moves")
+}
+
+model Stat {
+  id           Int      @id
+  name         String   @unique
+  gameIndex    Int?
+  isBattleOnly Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastFetched  DateTime @default(now())
+
+  pokemonStats PokemonStat[]
+
+  @@map("stats")
+}
+
+model EvolutionChain {
+  id              Int      @id
+  babyTriggerItem String?
+  chain           Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastFetched     DateTime @default(now())
+
+  species PokemonSpecies[]
+
+  @@map("evolution_chains")
+}
+
+model PokemonType {
+  pokemon   Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  pokemonId Int
+  type      Type    @relation(fields: [typeId], references: [id])
+  typeId    Int
+  slot      Int
+
+  @@id([pokemonId, typeId])
+  @@map("pokemon_types")
+}
+
+model PokemonAbility {
+  pokemon   Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  pokemonId Int
+  ability   Ability @relation(fields: [abilityId], references: [id])
+  abilityId Int
+  isHidden  Boolean @default(false)
+  slot      Int
+
+  @@id([pokemonId, abilityId])
+  @@map("pokemon_abilities")
+}
+
+model PokemonStat {
+  pokemon   Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  pokemonId Int
+  stat      Stat    @relation(fields: [statId], references: [id])
+  statId    Int
+  baseStat  Int
+  effort    Int     @default(0)
+
+  @@id([pokemonId, statId])
+  @@map("pokemon_stats")
+}
+
+model PokemonMove {
+  pokemon             Pokemon @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  pokemonId           Int
+  move                Move    @relation(fields: [moveId], references: [id])
+  moveId              Int
+  versionGroupDetails Json?
+
+  @@id([pokemonId, moveId])
+  @@map("pokemon_moves")
+}
