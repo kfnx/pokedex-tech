@@ -79,6 +79,8 @@ export interface PokemonSpecies {
 }
 
 class PokeAPIService {
+  public readonly baseURL = API_BASE_URL;
+
   private async fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 8000): Promise<Response> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -141,10 +143,12 @@ class PokeAPIService {
     return response.json();
   }
 
-  async searchPokemon(query: string, limit = 10): Promise<SearchResponse<Pokemon>> {
+  async searchPokemon(query: string, options: { limit?: number; fuzzy?: boolean } = {}): Promise<SearchResponse<Pokemon>> {
+    const { limit = 10, fuzzy = false } = options;
     const queryParams = new URLSearchParams({
       q: query,
       limit: limit.toString(),
+      fuzzy: fuzzy.toString(),
     });
 
     const response = await this.fetchWithTimeout(

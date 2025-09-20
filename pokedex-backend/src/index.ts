@@ -1,6 +1,16 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import express from 'express'
 import cors from 'cors'
+import Fuse from 'fuse.js'
+import swaggerUi from 'swagger-ui-express'
+import {
+  generalLimiter,
+  searchLimiter,
+  suggestionsLimiter,
+  seedLimiter,
+  closeRedisConnection
+} from './middleware/rateLimiter'
+import { swaggerSpec } from './config/swagger'
 
 const prisma = new PrismaClient()
 
@@ -16,11 +26,89 @@ app.use(cors({
 }))
 app.use(express.json())
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Pokedex API. Visit /api/pokemon to get started.')
+// Apply general rate limiting to all routes
+app.use(generalLimiter)
+
+// Swagger UI setup
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Pokédex API Documentation'
+}))
+
+// API spec endpoint
+app.get('/docs.json', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.send(swaggerSpec)
 })
 
-app.get('/health', async (req, res) => {
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: API root endpoint
+ *     description: Welcome message and basic API information
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: Welcome message
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ */
+app.get('/', (_req, res) => {
+  res.send('Welcome to the Pokédex API with Auto-suggestions! Visit /api-docs for API documentation or /api/pokemon to get started.')
+})
+
+/**
+ * @swagger
+ * /api/test-suggest:
+ *   get:
+ *     summary: Test endpoint for suggestions feature
+ *     description: Test route to verify server is running updated code
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: Test response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+app.get('/api/test-suggest', (_req, res) => {
+  res.json({ message: 'suggest route is working!' })
+})
+
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Check the health status of the API and database connection
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/HealthCheck'
+ *       503:
+ *         description: Service is unhealthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/HealthCheck'
+ *                 - type: object
+ *                   properties:
+ *                     error:
+ *                       type: string
+ */
+app.get('/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`
     res.status(200).json({
@@ -38,7 +126,7 @@ app.get('/health', async (req, res) => {
   }
 })
 
-app.get('/health/ready', async (req, res) => {
+app.get('/health/ready', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`
     const typeCount = await prisma.type.count()
@@ -187,16 +275,71 @@ app.get('/api/pokemon', async (req, res) => {
   }
 })
 
-app.get('/api/pokemon/search', async (req, res) => {
+app.get('/api/pokemon/search', searchLimiter, async (req, res) => {
   try {
-    const { q, limit = '10' } = req.query
+    const { q, limit = '10', fuzzy = 'false' } = req.query
 
     if (!q || typeof q !== 'string') {
       return res.status(400).json({ error: 'Search query is required' })
     }
 
     const limitNum = Math.min(50, Math.max(1, parseInt(limit as string)))
+    const useFuzzy = fuzzy === 'true'
 
+    if (useFuzzy) {
+      // Fetch all Pokemon for fuzzy search
+      const allPokemon = await prisma.pokemon.findMany({
+        select: {
+          id: true,
+          name: true,
+          types: {
+            include: { type: true },
+            orderBy: { slot: 'asc' }
+          },
+          abilities: {
+            include: { ability: true }
+          },
+          species: {
+            select: {
+              generation: true,
+              isLegendary: true,
+              isMythical: true
+            }
+          },
+          spriteFrontDefault: true
+        }
+      })
+
+      // Prepare data for fuzzy search
+      const searchData = allPokemon.map(p => ({
+        ...p,
+        typeNames: p.types.map(t => t.type.name).join(' '),
+        abilityNames: p.abilities.map(a => a.ability.name).join(' ')
+      }))
+
+      // Configure Fuse for fuzzy search
+      const fuse = new Fuse(searchData, {
+        keys: ['name', 'typeNames', 'abilityNames'],
+        threshold: 0.3,
+        includeScore: true,
+        minMatchCharLength: 2
+      })
+
+      const results = fuse.search(q, { limit: limitNum })
+      const pokemon = results.map(r => {
+        const { typeNames, abilityNames, ...pokemonData } = r.item
+        return pokemonData
+      })
+
+      return res.json({
+        query: q,
+        results: pokemon,
+        count: pokemon.length,
+        fuzzy: true
+      })
+    }
+
+    // Regular exact search
     const pokemon = await prisma.pokemon.findMany({
       where: {
         OR: [
@@ -241,10 +384,76 @@ app.get('/api/pokemon/search', async (req, res) => {
     res.json({
       query: q,
       results: pokemon,
-      count: pokemon.length
+      count: pokemon.length,
+      fuzzy: false
     })
   } catch (error) {
     res.status(500).json({ error: 'Search failed' })
+  }
+})
+
+// Auto-suggestions endpoint
+app.get('/api/pokemon/suggest', suggestionsLimiter, async (req, res) => {
+  try {
+    const { q, limit = '5' } = req.query
+
+    if (!q || typeof q !== 'string' || q.length < 2) {
+      return res.status(400).json({ error: 'Query must be at least 2 characters' })
+    }
+
+    const limitNum = Math.min(10, Math.max(1, parseInt(limit as string)))
+
+    // Get Pokemon names for suggestions
+    const pokemonNames = await prisma.pokemon.findMany({
+      where: {
+        name: {
+          startsWith: q.toLowerCase(),
+          mode: 'insensitive'
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        spriteFrontDefault: true
+      },
+      take: limitNum,
+      orderBy: { id: 'asc' }
+    })
+
+    // If no exact prefix matches, use fuzzy search
+    if (pokemonNames.length < limitNum) {
+      const allPokemon = await prisma.pokemon.findMany({
+        select: {
+          id: true,
+          name: true,
+          spriteFrontDefault: true
+        }
+      })
+
+      const fuse = new Fuse(allPokemon, {
+        keys: ['name'],
+        threshold: 0.2,
+        includeScore: true,
+        minMatchCharLength: 2
+      })
+
+      const fuzzyResults = fuse.search(q, { limit: limitNum })
+      const fuzzyPokemon = fuzzyResults
+        .filter(r => !pokemonNames.find(p => p.id === r.item.id))
+        .map(r => r.item)
+        .slice(0, limitNum - pokemonNames.length)
+
+      pokemonNames.push(...fuzzyPokemon)
+    }
+
+    res.json({
+      query: q,
+      suggestions: pokemonNames,
+      count: pokemonNames.length
+    })
+  } catch (error) {
+    console.error('Suggest error:', error)
+    res.status(500).json({ error: 'Suggestion failed' })
   }
 })
 
@@ -337,7 +546,7 @@ app.get('/api/pokemon/:id', async (req, res) => {
 })
 
 
-app.get('/api/types', async (req, res) => {
+app.get('/api/types', async (_req, res) => {
   try {
     const types = await prisma.type.findMany({
       orderBy: { id: 'asc' }
@@ -386,7 +595,7 @@ app.get('/api/pokemon/:id/fetch', async (req, res) => {
   }
 })
 
-app.post('/api/seed', async (req, res) => {
+app.post('/api/seed', seedLimiter, async (req, res) => {
   try {
     const { count = 151 } = req.body
 
@@ -404,6 +613,29 @@ app.post('/api/seed', async (req, res) => {
   }
 })
 
-const server = app.listen(3000, () =>
-  console.log(`🚀 Server ready at: http://localhost:3000`),
+const PORT = process.env.PORT || 3001
+
+const server = app.listen(PORT, () =>
+  console.log(`🚀 Server ready at: http://localhost:${PORT}`),
 )
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully...')
+  await closeRedisConnection()
+  await prisma.$disconnect()
+  server.close(() => {
+    console.log('Server closed')
+    process.exit(0)
+  })
+})
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, shutting down gracefully...')
+  await closeRedisConnection()
+  await prisma.$disconnect()
+  server.close(() => {
+    console.log('Server closed')
+    process.exit(0)
+  })
+})

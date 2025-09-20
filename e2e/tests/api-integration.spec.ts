@@ -45,13 +45,14 @@ test.describe('API Integration', () => {
   });
 
   test('should make successful requests to different endpoints', async ({ page }) => {
+    const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
     const endpoints = [
       '/api/pokemon',
       '/api/pokemon/1',
     ];
 
     for (const endpoint of endpoints) {
-      const response = await page.request.get(`http://localhost:3000${endpoint}`);
+      const response = await page.request.get(`${BACKEND_URL}${endpoint}`);
       expect(response.status()).toBe(200);
 
       const data = await response.json();

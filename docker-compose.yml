@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:17
     container_name: pokedex-postgres
     environment:
       POSTGRES_DB: pokedex
@@ -17,6 +17,18 @@ services:
       retries: 5
     restart: unless-stopped
 
+  redis:
+    image: redis:8
+    container_name: pokedex-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
   backend:
     build:
       context: ./pokedex-backend
@@ -25,11 +37,15 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:postgres123@postgres:5432/pokedex"
       DIRECT_URL: "postgresql://postgres:postgres123@postgres:5432/pokedex"
+      REDIS_URL: "redis://redis:6379"
       NODE_ENV: production
+      PORT: 3000
     ports:
       - "3000:3000"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "bun", "--print", "await fetch('http://localhost:3000/health').then(r => r.json())"]
@@ -50,7 +66,7 @@ services:
       BACKEND_API_URL: "http://localhost:3000"
       NODE_ENV: production
     ports:
-      - "8081:8081"  # Production web server
+      - "8081:8081"
     depends_on:
       backend:
         condition: service_healthy

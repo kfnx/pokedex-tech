@@ -83,7 +83,7 @@ export function usePokemonDetails(id: number | null) {
   return { pokemon, loading, error };
 }
 
-export function usePokemonSearch(query: string, debounceMs = 300) {
+export function usePokemonSearch(query: string, debounceMs = 300, enableFuzzy = false) {
   const [results, setResults] = useState<Pokemon[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,7 +107,7 @@ export function usePokemonSearch(query: string, debounceMs = 300) {
       setError(null);
 
       try {
-        const response = await pokeAPI.searchPokemon(query);
+        const response = await pokeAPI.searchPokemon(query, { fuzzy: enableFuzzy });
         setResults(response.results);
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {
@@ -125,7 +125,7 @@ export function usePokemonSearch(query: string, debounceMs = 300) {
         abortControllerRef.current.abort();
       }
     };
-  }, [query, debounceMs]);
+  }, [query, debounceMs, enableFuzzy]);
 
   return { results, loading, error };
 }

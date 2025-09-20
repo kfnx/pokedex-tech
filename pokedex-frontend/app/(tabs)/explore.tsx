@@ -13,19 +13,27 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { PokemonCard } from '@/components/pokemon/pokemon-card';
+import { AutoSuggest } from '@/components/ui/auto-suggest';
 import { usePokemonSearch } from '@/hooks/use-pokemon';
+import { usePokemonSuggestions } from '@/hooks/use-pokemon-suggestions';
 import { Pokemon } from '@/services/api';
 
 export default function TabTwoScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [enableFuzzySearch, setEnableFuzzySearch] = useState(false);
 
   const backgroundColor = '#000000';
   const textColor = '#FFFFFF';
   const borderColor = '#333333';
   const activeBgColor = '#0A84FF';
 
-  const { results, loading, error } = usePokemonSearch(searchQuery);
+  const { results, loading, error } = usePokemonSearch(searchQuery, 300, enableFuzzySearch);
+  const { suggestions, loading: suggestionsLoading } = usePokemonSuggestions(
+    searchQuery,
+    showSuggestions && searchQuery.length >= 2 && !activeFilter
+  );
 
   const handlePokemonPress = useCallback((pokemon: Pokemon) => {
     router.push(`/pokemon/${pokemon.id}`);
@@ -55,22 +63,37 @@ export default function TabTwoScreen() {
           style={styles.headerLogo}
           contentFit="contain"
         />
-        <TextInput
-          style={[styles.searchInput, { borderColor, color: textColor }]}
-          placeholder="Search by name, type, or ability..."
-          placeholderTextColor={textColor + '80'}
-          value={searchQuery}
-          onChangeText={(text) => {
-            setSearchQuery(text);
-            // Clear active filter if user manually types something different
-            if (activeFilter && text !== activeFilter) {
-              setActiveFilter(null);
-            }
-          }}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoFocus
-        />
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={[styles.searchInput, { borderColor, color: textColor }]}
+            placeholder="Search by name, type, or ability..."
+            placeholderTextColor={textColor + '80'}
+            value={searchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              // Clear active filter if user manually types something different
+              if (activeFilter && text !== activeFilter) {
+                setActiveFilter(null);
+              }
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoFocus
+          />
+          <AutoSuggest
+            suggestions={suggestions}
+            loading={suggestionsLoading}
+            visible={showSuggestions && suggestions.length > 0}
+            onSuggestionPress={(suggestion) => {
+              setSearchQuery(suggestion.name);
+              setActiveFilter(suggestion.name);
+              setShowSuggestions(false);
+            }}
+          />
+        </View>
 
         <ScrollView
           horizontal
@@ -106,6 +129,28 @@ export default function TabTwoScreen() {
             );
           })}
         </ScrollView>
+
+        <View style={styles.optionsContainer}>
+          <Pressable
+            style={[
+              styles.fuzzyToggle,
+              {
+                borderColor: enableFuzzySearch ? activeBgColor : borderColor,
+                backgroundColor: enableFuzzySearch ? activeBgColor : 'transparent',
+              }
+            ]}
+            onPress={() => setEnableFuzzySearch(!enableFuzzySearch)}
+          >
+            <ThemedText
+              style={[
+                styles.fuzzyToggleText,
+                { color: enableFuzzySearch ? 'white' : textColor }
+              ]}
+            >
+              {enableFuzzySearch ? '🔍' : '📝'} {enableFuzzySearch ? 'Fuzzy' : 'Exact'}
+            </ThemedText>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.resultsContainer}>
@@ -185,6 +230,9 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 16,
   },
+  searchContainer: {
+    position: 'relative',
+  },
   searchInput: {
     height: 48,
     borderWidth: 1,
@@ -205,6 +253,21 @@ const styles = StyleSheet.create({
   },
   quickSearchText: {
     fontSize: 14,
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+  },
+  fuzzyToggle: {
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  fuzzyToggleText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   resultsContainer: {
     flex: 1,
