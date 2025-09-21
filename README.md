@@ -61,10 +61,13 @@ install bun https://bun.com/docs/installation#installing
 ### Backend (`pokedex-backend/`)
 ```bash
 bun install          # Install dependencies
-bun run dev          # Development server (:3001)
+bun prisma generate  # Generate prisma client
+bun prisma migrate   # Execute migration
+bun prisma seed      # seed pokemon data in postgres
+bun run dev          # Development server (:3000)
 bun run build        # Build application
 bun test             # Run unit tests
-bunx prisma studio   # Database GUI
+bun prisma studio    # Database GUI
 ```
 
 ### Frontend (`pokedex-frontend/`)

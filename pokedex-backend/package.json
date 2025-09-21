@@ -7,12 +7,13 @@
     "build": "bun build src/index.ts --outdir=dist --target=bun",
     "start": "NODE_ENV=production bun run src/index.ts",
     "start:compiled": "bun run dist/index.js",
+    "postinstall": "prisma generate",
     "seed": "bun run prisma/seed.ts",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "bunx tsc --noEmit -p tsconfig.json"
   },
   "prisma": {
     "seed": "bun run prisma/seed.ts"

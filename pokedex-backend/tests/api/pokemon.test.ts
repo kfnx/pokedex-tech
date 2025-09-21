@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'bun:test';
 
 describe('Pokemon API Endpoints', () => {
-  const BASE_URL = 'http://localhost:3001'; // Development server URL
+  const BASE_URL = 'http://localhost:3000'; // Docker development server URL
 
   describe('GET /api/pokemon', () => {
     it('should return paginated Pokemon list with default parameters', async () => {
@@ -118,7 +118,7 @@ describe('Pokemon API Endpoints', () => {
 
       const data = await response.json();
       expect(data).toHaveProperty('error');
-      expect(data.error).toContain('6');
+      expect(data.error).toContain('3');
     });
   });
 

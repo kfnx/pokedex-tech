@@ -27,19 +27,18 @@ jobs:
 
     - name: Run linting
       working-directory: ./pokedex-${{ matrix.project }}
-      run: bun run lint
+      run: bun lint
 
-    - name: Run type checking (backend only)
-      if: matrix.project == 'backend'
+    - name: Run typescript checking
       working-directory: ./pokedex-${{ matrix.project }}
-      run: bun run build
+      run: bun typecheck
 
   unit-tests:
     runs-on: ubuntu-22.04
 
     strategy:
       matrix:
-        project: [backend]
+        project: [frontend, backend]
 
     steps:
     - uses: actions/checkout@v4

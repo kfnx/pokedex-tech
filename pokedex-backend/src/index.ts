@@ -41,73 +41,10 @@ app.get('/docs.json', (_req, res) => {
   res.send(swaggerSpec)
 })
 
-/**
- * @swagger
- * /:
- *   get:
- *     summary: API root endpoint
- *     description: Welcome message and basic API information
- *     tags: [General]
- *     responses:
- *       200:
- *         description: Welcome message
- *         content:
- *           text/plain:
- *             schema:
- *               type: string
- */
 app.get('/', (_req, res) => {
   res.send('Welcome to the Pokédex API with Auto-suggestions! Visit /api-docs for API documentation or /api/pokemon to get started.')
 })
 
-/**
- * @swagger
- * /api/test-suggest:
- *   get:
- *     summary: Test endpoint for suggestions feature
- *     description: Test route to verify server is running updated code
- *     tags: [General]
- *     responses:
- *       200:
- *         description: Test response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- */
-app.get('/api/test-suggest', (_req, res) => {
-  res.json({ message: 'suggest route is working!' })
-})
-
-/**
- * @swagger
- * /health:
- *   get:
- *     summary: Health check endpoint
- *     description: Check the health status of the API and database connection
- *     tags: [Health]
- *     responses:
- *       200:
- *         description: Service is healthy
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/HealthCheck'
- *       503:
- *         description: Service is unhealthy
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/HealthCheck'
- *                 - type: object
- *                   properties:
- *                     error:
- *                       type: string
- */
 app.get('/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`
@@ -117,6 +54,7 @@ app.get('/health', async (_req, res) => {
       database: 'connected'
     })
   } catch (error) {
+    console.error(error)
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
@@ -149,6 +87,7 @@ app.get('/health/ready', async (_req, res) => {
       types: typeCount
     })
   } catch (error) {
+    console.error(error)
     res.status(503).json({
       status: 'not ready',
       timestamp: new Date().toISOString(),
@@ -177,6 +116,7 @@ app.get('/api/pokemon/list', async (req, res) => {
       }
     })
   } catch (error) {
+    console.error(error)
     console.error('Failed to fetch Pokemon list:', error)
     res.status(500).json({ error: 'Failed to fetch Pokemon list' })
   }
@@ -271,6 +211,7 @@ app.get('/api/pokemon', async (req, res) => {
       }
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Failed to fetch Pokemon' })
   }
 })
@@ -388,6 +329,7 @@ app.get('/api/pokemon/search', searchLimiter, async (req, res) => {
       fuzzy: false
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Search failed' })
   }
 })
@@ -452,6 +394,7 @@ app.get('/api/pokemon/suggest', suggestionsLimiter, async (req, res) => {
       count: pokemonNames.length
     })
   } catch (error) {
+    console.error(error)
     console.error('Suggest error:', error)
     res.status(500).json({ error: 'Suggestion failed' })
   }
@@ -513,6 +456,7 @@ app.get('/api/pokemon/compare', async (req, res) => {
       }
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Comparison failed' })
   }
 })
@@ -538,6 +482,7 @@ app.get('/api/pokemon/:id', async (req, res) => {
 
     res.json(pokemon)
   } catch (error) {
+    console.error(error)
     console.error('Failed to fetch Pokemon details:', error)
     res.status(500).json({ error: 'Failed to fetch Pokemon details' })
   }
@@ -552,6 +497,7 @@ app.get('/api/types', async (_req, res) => {
 
     res.json(types)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Failed to fetch types' })
   }
 })
@@ -568,6 +514,7 @@ app.get('/api/abilities', async (req, res) => {
 
     res.json(abilities)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Failed to fetch abilities' })
   }
 })
@@ -589,6 +536,7 @@ app.get('/api/pokemon/:id/fetch', async (req, res) => {
       pokemon
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Failed to fetch Pokemon from PokeAPI' })
   }
 })
@@ -607,6 +555,7 @@ app.post('/api/seed', seedLimiter, async (req, res) => {
 
     seedInitialPokemon(count).catch(console.error)
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Failed to start seeding process' })
   }
 })

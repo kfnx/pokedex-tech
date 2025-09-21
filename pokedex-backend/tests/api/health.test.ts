@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 
 describe('Health API Endpoints', () => {
-  const BASE_URL = 'http://localhost:3001'; // Development server URL
+  const BASE_URL = 'http://localhost:3000'; // Docker development server URL
 
   describe('GET /health', () => {
     it('should return healthy status', async () => {

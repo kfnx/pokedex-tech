@@ -35,6 +35,7 @@ export function TypeEffectivenessTab({ pokemon }: TypeEffectivenessTabProps) {
   const [error, setError] = useState<string | null>(null);
 
   const borderColor = '#333333';
+  const textColor = '#FFFFFF';
 
   useEffect(() => {
     const fetchTypeData = async () => {

@@ -80,14 +80,8 @@ describe('PokeAPI Service', () => {
     });
 
     it('should handle timeout correctly', async () => {
-      (fetch as jest.Mock).mockImplementationOnce(() =>
-        new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('AbortError')), 100);
-        })
-      );
-
       // Mock AbortError
-      const abortError = new Error('Request timeout');
+      const abortError = new Error('AbortError');
       abortError.name = 'AbortError';
       (fetch as jest.Mock).mockRejectedValueOnce(abortError);
 
@@ -102,6 +96,14 @@ describe('PokeAPI Service', () => {
         name: 'pikachu',
         height: 4,
         weight: 60,
+        baseExperience: 112,
+        order: 25,
+        spriteFrontDefault: 'https://example.com/pikachu.png',
+        spriteBackDefault: null,
+        spriteFrontShiny: null,
+        spriteBackShiny: null,
+        cries: {},
+        lastFetched: '2024-01-01T00:00:00.000Z',
         types: [{ slot: 1, type: { id: 13, name: 'electric' } }]
       };
 
@@ -110,7 +112,7 @@ describe('PokeAPI Service', () => {
         json: async () => mockPokemon
       });
 
-      const result = await pokeAPI.getPokemonById(25);
+      const result = await pokeAPI.getPokemonDetails(25);
 
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/pokemon/25'),
@@ -125,7 +127,7 @@ describe('PokeAPI Service', () => {
         status: 404
       });
 
-      await expect(pokeAPI.getPokemonById(9999)).rejects.toThrow('Failed to fetch Pokemon');
+      await expect(pokeAPI.getPokemonDetails(9999)).rejects.toThrow('Pokemon not found');
     });
   });
 
@@ -156,8 +158,34 @@ describe('PokeAPI Service', () => {
       const mockSearchResponse = {
         query: 'fire',
         results: [
-          { id: 4, name: 'charmander' },
-          { id: 37, name: 'vulpix' }
+          {
+            id: 4,
+            name: 'charmander',
+            height: 6,
+            weight: 85,
+            baseExperience: 62,
+            order: 4,
+            spriteFrontDefault: 'https://example.com/charmander.png',
+            spriteBackDefault: null,
+            spriteFrontShiny: null,
+            spriteBackShiny: null,
+            cries: {},
+            lastFetched: '2024-01-01T00:00:00.000Z'
+          },
+          {
+            id: 37,
+            name: 'vulpix',
+            height: 6,
+            weight: 99,
+            baseExperience: 60,
+            order: 37,
+            spriteFrontDefault: 'https://example.com/vulpix.png',
+            spriteBackDefault: null,
+            spriteFrontShiny: null,
+            spriteBackShiny: null,
+            cries: {},
+            lastFetched: '2024-01-01T00:00:00.000Z'
+          }
         ],
         count: 2
       };
