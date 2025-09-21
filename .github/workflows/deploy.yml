@@ -80,8 +80,34 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
+            # Install Docker if not present
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker..."
+              curl -fsSL https://get.docker.com -o get-docker.sh
+              sudo sh get-docker.sh
+              sudo usermod -aG docker $USER
+              rm get-docker.sh
+            fi
+
+            # Clone repository if it doesn't exist
+            if [ ! -d "~/pokedex-voltron" ]; then
+              echo "Cloning repository..."
+              git clone https://github.com/${{ github.repository }}.git ~/pokedex-voltron
+            fi
+
+            # Navigate and update
             cd ~/pokedex-voltron
             git pull origin main
-            docker-compose -f docker-compose.production.yml pull
-            docker-compose -f docker-compose.production.yml up -d --force-recreate
+
+            # Create .env file if it doesn't exist
+            if [ ! -f pokedex-backend/.env ]; then
+              echo "Creating .env file..."
+              echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > pokedex-backend/.env
+              echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> pokedex-backend/.env
+              echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> pokedex-backend/.env
+            fi
+
+            # Deploy with Docker Compose
+            docker compose -f docker-compose.production.yml pull
+            docker compose -f docker-compose.production.yml up -d --force-recreate
             docker system prune -f
