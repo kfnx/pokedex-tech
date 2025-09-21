@@ -59,7 +59,7 @@ jobs:
       run: |
         npx prisma migrate deploy
         npx prisma generate
-        npx prisma seed
+        npm run seed
     - name: Install Playwright Browsers
       working-directory: ./e2e
       run: bunx playwright install --with-deps
