@@ -16,8 +16,8 @@ test.describe('API Rate Limiting', () => {
 
       // Check rate limit headers are present
       const rateLimitHeaders = response.headers();
-      expect(rateLimitHeaders['ratelimit-limit']).toBe('1000'); // Higher limit for test environment
-      expect(rateLimitHeaders['ratelimit-policy']).toBe('1000;w=600'); // 10 minutes = 600 seconds
+      expect(rateLimitHeaders['ratelimit-limit']).toBe('300'); // Higher limit for test environment
+      expect(rateLimitHeaders['ratelimit-policy']).toBe('300;w=600'); // 10 minutes = 600 seconds
       expect(parseInt(rateLimitHeaders['ratelimit-remaining'])).toBeGreaterThanOrEqual(0);
     }
 

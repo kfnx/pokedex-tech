@@ -6,7 +6,7 @@ services:
       context: ./pokedex-frontend
       dockerfile: Dockerfile
     ports:
-      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_PORT:-80}:8081"
     environment:
       - BACKEND_API_URL=${BACKEND_URL:-http://localhost:3000}
     networks:

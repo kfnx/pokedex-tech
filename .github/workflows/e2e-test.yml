@@ -59,6 +59,12 @@ jobs:
       run: |
         npx prisma migrate deploy
         npx prisma generate
+    - name: Seed test database
+      working-directory: ./pokedex-backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pokedex_test
+        DIRECT_URL: postgresql://postgres:postgres@localhost:5432/pokedex_test
+      run: npx prisma db seed
     - name: Install Playwright Browsers
       working-directory: ./e2e
       run: bunx playwright install --with-deps
