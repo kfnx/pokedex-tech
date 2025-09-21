@@ -3,8 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install Bun globally for package management
-RUN npm install -g bun@latest
+# Install Bun globally for package management (specific version for stability)
+RUN npm install -g bun@1.1.38
 
 # Copy package files and lock file
 COPY package.json bun.lock ./

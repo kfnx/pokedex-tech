@@ -19,23 +19,31 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  // For Docker-based testing, comment out webServer and ensure containers are running
-  // webServer: [
-  //   {
-  //     command: 'bun run dev',
-  //     cwd: '../pokedex-backend',
-  //     port: 3000,
-  //   },
-  //   {
-  //     command: 'bun run web',
-  //     cwd: '../pokedex-frontend',
-  //     port: 8081,
-  //   }
-  // ],
+  // Start services automatically unless using Docker
+  webServer: process.env.USE_DOCKER ? undefined : [
+    {
+      command: 'PORT=3000 bun run dev',
+      cwd: '../pokedex-backend',
+      port: 3000,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      env: {
+        PORT: '3000',
+        NODE_ENV: 'test'
+      }
+    },
+    {
+      command: 'bun run web',
+      cwd: '../pokedex-frontend',
+      port: 8081,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    }
+  ],
 
-  // Expect services to be running (via Docker Compose)
-  // globalSetup: process.env.USE_DOCKER ? undefined : require.resolve('./setup/global-setup.ts'),
-  // globalTeardown: process.env.USE_DOCKER ? undefined : require.resolve('./setup/global-teardown.ts'),
+  // Use global setup for Docker mode to verify services are ready
+  globalSetup: process.env.USE_DOCKER ? require.resolve('./setup/global-setup.ts') : undefined,
+  globalTeardown: process.env.USE_DOCKER ? require.resolve('./setup/global-teardown.ts') : undefined,
 
   timeout: 30000,
   expect: {

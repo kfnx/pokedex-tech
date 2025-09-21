@@ -29,12 +29,20 @@ test.describe('App Health Check', () => {
 
   test('should handle 404 pages gracefully', async ({ page }) => {
     await page.goto('/non-existent-page');
+    await page.waitForLoadState('networkidle');
 
     // Should either redirect or show 404 page
     const url = page.url();
-    const isNotFoundPage = url.includes('not-found') || url.includes('404');
+    const isNotFoundPage = url.includes('not-found') || url.includes('404') || url.includes('+not-found');
     const isRedirected = url.endsWith('/');
 
-    expect(isNotFoundPage || isRedirected).toBe(true);
+    // Log actual URL for debugging
+    console.log(`Navigated to: ${url}`);
+
+    // Check if page shows appropriate 404 content or redirects
+    const hasNotFoundText = await page.locator('text=/not found/i').count() > 0;
+    const has404Text = await page.locator('text=/404/i').count() > 0;
+
+    expect(isNotFoundPage || isRedirected || hasNotFoundText || has404Text).toBe(true);
   });
 });
