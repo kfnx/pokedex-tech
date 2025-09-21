@@ -61,7 +61,7 @@ services:
       dockerfile: Dockerfile
     container_name: pokedex-frontend
     environment:
-      BACKEND_API_URL: "http://localhost:3000"
+      BACKEND_API_URL: "http://server.kafin.dev:3000"
       NODE_ENV: production
     ports:
       - "8081:8081"

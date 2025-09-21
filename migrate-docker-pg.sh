@@ -4,13 +4,13 @@ set -e
 
 echo "Starting database migration process..."
 
-if ! docker-compose ps | grep -q "postgres.*Up"; then
+if ! docker compose ps | grep -q "postgres.*Up"; then
     echo "PostgreSQL container is not running. Starting Docker Compose services..."
-    docker-compose up -d postgres
+    docker compose up -d postgres
 fi
 
 echo "Waiting for PostgreSQL to be ready..."
-until docker-compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do
+until docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do
   echo "PostgreSQL is unavailable - sleeping for 2 seconds..."
   sleep 2
 done
