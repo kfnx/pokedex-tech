@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   workflow_run:
-    workflows: ["CI", "Playwright Tests"]
+    workflows: ["Lint and Typecheck", "Unit Test", "E2E test with Playwright"]
     types:
       - completed
     branches:

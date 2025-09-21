@@ -1,0 +1,57 @@
+name: Unit Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        project: [frontend, backend]
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pokedex_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.1.38
+
+    - name: Install dependencies
+      working-directory: ./pokedex-${{ matrix.project }}
+      run: bun install --frozen-lockfile
+
+    - name: Setup test database
+      if: matrix.project == 'backend'
+      working-directory: ./pokedex-backend
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pokedex_test
+        DIRECT_URL: postgresql://postgres:postgres@localhost:5432/pokedex_test
+      run: |
+        npx prisma migrate deploy
+        npx prisma generate
+
+    - name: Run tests
+      working-directory: ./pokedex-${{ matrix.project }}
+      env:
+        DATABASE_URL: ${{ matrix.project == 'backend' && 'postgresql://postgres:postgres@localhost:5432/pokedex_test' || '' }}
+        DIRECT_URL: ${{ matrix.project == 'backend' && 'postgresql://postgres:postgres@localhost:5432/pokedex_test' || '' }}
+      run: bun test
