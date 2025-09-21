@@ -68,7 +68,7 @@ export function validateSearchQuery(query: string | undefined, minLength: number
  */
 export function validateSortParam(sort: string | undefined): 'id' | 'name' | 'height' | 'weight' {
   const validSorts = ['id', 'name', 'height', 'weight'] as const;
-  if (!sort || !validSorts.includes(sort as any)) {
+  if (!sort || !validSorts.includes(sort as typeof validSorts[number])) {
     return 'id';
   }
   return sort as 'id' | 'name' | 'height' | 'weight';

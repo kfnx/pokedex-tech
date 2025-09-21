@@ -28,7 +28,6 @@ jobs:
     - name: Run linting
       working-directory: ./pokedex-${{ matrix.project }}
       run: bun run lint
-      continue-on-error: true
 
     - name: Run type checking (backend only)
       if: matrix.project == 'backend'
@@ -56,4 +55,3 @@ jobs:
     - name: Run tests
       working-directory: ./pokedex-${{ matrix.project }}
       run: bun test
-      continue-on-error: true

@@ -64,12 +64,10 @@ const abilityDescriptions: Record<string, string> = {
   'color-change': 'Changes type to match the type of the last move used against it.',
   'immunity': 'Prevents poison.',
   'flash-fire': 'Boosts Fire-type moves by 50% when hit by Fire-type moves.',
-  'shield-dust': 'Blocks additional effects of attacks.',
 };
 
 export function AbilitiesTab({ pokemon }: AbilitiesTabProps) {
   const borderColor = '#333333';
-  const backgroundColor = '#000000';
   const cardBgColor = '#1a1a1a';
   const hiddenCardBgColor = '#2D1B00';
 
@@ -176,7 +174,7 @@ export function AbilitiesTab({ pokemon }: AbilitiesTabProps) {
             <View style={styles.infoItem}>
               <ThemedText style={styles.infoTitle}>Ability Slots</ThemedText>
               <ThemedText style={styles.infoText}>
-                The slot number indicates which of the Pokemon's possible abilities this is.
+                The slot number indicates which of the Pokemon&apos;s possible abilities this is.
                 Slot 1 is the primary ability, slot 2 is the secondary (if available), and hidden abilities are separate.
               </ThemedText>
             </View>

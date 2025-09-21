@@ -7,14 +7,6 @@ interface TypeEffectivenessTabProps {
   pokemon: Pokemon;
 }
 
-interface TypeRelations {
-  doubleDamageTo: string[];
-  halfDamageTo: string[];
-  noDamageTo: string[];
-  doubleDamageFrom: string[];
-  halfDamageFrom: string[];
-  noDamageFrom: string[];
-}
 
 const typeColors: Record<string, string> = {
   normal: '#A8A878',
@@ -43,8 +35,6 @@ export function TypeEffectivenessTab({ pokemon }: TypeEffectivenessTabProps) {
   const [error, setError] = useState<string | null>(null);
 
   const borderColor = '#333333';
-  const backgroundColor = '#000000';
-  const textColor = '#FFFFFF';
 
   useEffect(() => {
     const fetchTypeData = async () => {
@@ -59,7 +49,7 @@ export function TypeEffectivenessTab({ pokemon }: TypeEffectivenessTabProps) {
           pokemon.types?.some(pt => pt.type.name === type.name)
         );
         setTypeData(pokemonTypeData);
-      } catch (err) {
+      } catch {
         setError('Failed to load type effectiveness data');
       } finally {
         setLoading(false);
@@ -286,7 +276,7 @@ export function TypeEffectivenessTab({ pokemon }: TypeEffectivenessTabProps) {
         <View style={styles.section}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>Offensive Effectiveness</ThemedText>
           <ThemedText style={styles.sectionDescription}>
-            How much damage this Pokemon's type moves deal to other types
+            How much damage this Pokemon&apos;s type moves deal to other types
           </ThemedText>
 
           {superEffective.length > 0 && (

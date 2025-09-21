@@ -23,7 +23,6 @@ export function TabView({ tabs, initialTab }: TabViewProps) {
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.key);
   const { width } = useWindowDimensions();
 
-  const backgroundColor = '#000000';
   const textColor = '#FFFFFF';
   const borderColor = '#333333';
   const activeColor = '#0A84FF';

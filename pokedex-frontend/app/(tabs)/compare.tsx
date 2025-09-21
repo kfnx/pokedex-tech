@@ -14,7 +14,6 @@ import { Image } from 'expo-image';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useInfinitePokemonList } from '@/hooks/use-pokemon';
-import { PokemonCard } from '@/components/pokemon/pokemon-card';
 import { Pokemon, pokeAPI } from '@/services/api';
 
 interface ComparisonData {
@@ -41,9 +40,7 @@ export default function CompareScreen() {
 
   const {
     pokemon: allPokemon,
-    loading: listLoading,
     loadMore,
-    hasMore,
   } = useInfinitePokemonList({
     limit: 20,
     search: searchQuery,

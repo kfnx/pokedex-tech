@@ -38,14 +38,6 @@ const typeColors: Record<string, string> = {
   fairy: '#EE99AC',
 };
 
-const statNames: Record<string, string> = {
-  hp: 'HP',
-  attack: 'Attack',
-  defense: 'Defense',
-  'special-attack': 'Sp. Atk',
-  'special-defense': 'Sp. Def',
-  speed: 'Speed',
-};
 
 export default function PokemonDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -53,7 +45,6 @@ export default function PokemonDetailScreen() {
 
   const backgroundColor = '#000000';
   const textColor = '#FFFFFF';
-  const borderColor = '#333333';
 
   const { pokemon, loading, error } = usePokemonDetails(pokemonId);
 

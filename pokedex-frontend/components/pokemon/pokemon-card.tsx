@@ -34,7 +34,6 @@ const typeColors: Record<string, string> = {
 export function PokemonCard({ pokemon, onPress }: PokemonCardProps) {
   const backgroundColor = '#000000';
   const borderColor = '#333333';
-  const textColor = '#FFFFFF';
 
   const formatId = (id: number) => `#${id.toString().padStart(3, '0')}`;
 

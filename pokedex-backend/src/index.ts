@@ -459,10 +459,8 @@ app.get('/api/pokemon/suggest', suggestionsLimiter, async (req, res) => {
 
 const MAX_COMPARE = 3
 app.get('/api/pokemon/compare', async (req, res) => {
-  console.log("called compare endpoint");
   try {
     const { ids } = req.query
-    console.log("compare ids", ids);
     if (!ids || typeof ids !== 'string') {
       return res.status(400).json({ error: 'Pokemon IDs are required' })
     }

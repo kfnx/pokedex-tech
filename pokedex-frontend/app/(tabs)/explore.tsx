@@ -180,7 +180,7 @@ export default function TabTwoScreen() {
               ListEmptyComponent={
                 <ThemedView style={styles.emptyContainer}>
                   <ThemedText style={styles.emptyText}>
-                    No Pokémon found matching "{searchQuery}"
+                    No Pokémon found matching &quot;{searchQuery}&quot;
                   </ThemedText>
                 </ThemedView>
               }
@@ -192,13 +192,13 @@ export default function TabTwoScreen() {
           <ThemedView style={styles.instructionContainer}>
             <ThemedText style={styles.instructionTitle}>Search Tips</ThemedText>
             <ThemedText style={styles.instructionText}>
-              • Search by Pokémon name (e.g., "Pikachu")
+              • Search by Pokémon name (e.g., &quot;Pikachu&quot;)
             </ThemedText>
             <ThemedText style={styles.instructionText}>
-              • Search by type (e.g., "fire", "water")
+              • Search by type (e.g., &quot;fire&quot;, &quot;water&quot;)
             </ThemedText>
             <ThemedText style={styles.instructionText}>
-              • Search by ability (e.g., "overgrow")
+              • Search by ability (e.g., &quot;overgrow&quot;)
             </ThemedText>
             <ThemedText style={styles.instructionText}>
               • Minimum 2 characters to start searching

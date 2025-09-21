@@ -11,9 +11,6 @@ interface OverviewTabProps {
 
 export function OverviewTab({ pokemon }: OverviewTabProps) {
   const borderColor = '#333333';
-  const backgroundColor = '#000000';
-
-  const formatName = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>

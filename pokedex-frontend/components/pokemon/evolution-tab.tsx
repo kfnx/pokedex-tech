@@ -124,7 +124,6 @@ export function EvolutionTab({ pokemon }: EvolutionTabProps) {
   const [pokemonData, setPokemonData] = useState<Record<number, Pokemon>>({});
 
   const borderColor = '#333333';
-  const backgroundColor = '#000000';
   const textColor = '#FFFFFF';
   const methodBadgeColor = '#1A237E';
   const methodTextColor = '#BBDEFB';

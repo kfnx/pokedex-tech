@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import { createClient } from 'redis';
+import { Request, Response } from 'express';
 
 // Redis client for rate limiting store
 let redisClient: ReturnType<typeof createClient> | null = null;
@@ -74,10 +75,10 @@ class RedisStore {
       pipeline.ttl(redisKey);
 
       const results = await pipeline.exec();
-      const totalHits = results?.[0] as number || 1;
-      const timeToExpire = results?.[2] as number || undefined;
+      const totalHits = (results?.[0] as unknown as number) || 1;
+      const timeToExpire = (results?.[2] as unknown as number) || undefined;
 
-      return { totalHits, timeToExpire: timeToExpire > 0 ? timeToExpire * 1000 : undefined };
+      return { totalHits, timeToExpire: timeToExpire && timeToExpire > 0 ? timeToExpire * 1000 : undefined };
     } catch (error) {
       console.error('Redis increment error:', error);
       return { totalHits: 1 };
@@ -113,8 +114,8 @@ class RedisStore {
 
 // Custom rate limit handler for consistent error responses
 const createRateLimitHandler = (limitType: string, retryAfter: string) => {
-  return (req: any, res: any) => {
-    const resetTime = new Date(Date.now() + res.getHeader('RateLimit-Reset') * 1000);
+  return (req: Request, res: Response) => {
+    const resetTime = new Date(Date.now() + (Number(res.getHeader('RateLimit-Reset') || 0) * 1000));
 
     // Log rate limit violation
     console.warn(`Rate limit exceeded for ${limitType}:`, {
@@ -132,8 +133,8 @@ const createRateLimitHandler = (limitType: string, retryAfter: string) => {
       error: 'Rate limit exceeded',
       message: `Too many ${limitType} requests from this IP address. Please try again later.`,
       details: {
-        limit: parseInt(res.getHeader('RateLimit-Limit')) || 0,
-        remaining: parseInt(res.getHeader('RateLimit-Remaining')) || 0,
+        limit: parseInt(String(res.getHeader('RateLimit-Limit') || '0')) || 0,
+        remaining: parseInt(String(res.getHeader('RateLimit-Remaining') || '0')) || 0,
         resetTime: resetTime.toISOString(),
         retryAfter: retryAfter,
         requestsAllowed: `${res.getHeader('RateLimit-Limit')} requests per ${retryAfter}`
@@ -150,7 +151,7 @@ export const generalLimiter = rateLimit({
   max: process.env.NODE_ENV === 'test' ? 1000 : 300, // Higher limit for testing
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  store: new RedisStore('general:'),
+  store: new RedisStore('general:') as any,
   handler: createRateLimitHandler('general API', '10 minutes'),
   skip: (req) => {
     // Skip rate limiting for health checks only
@@ -165,7 +166,7 @@ export const searchLimiter = rateLimit({
   max: 30, // Limit each IP to 30 search requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore('search:'),
+  store: new RedisStore('search:') as any,
   handler: createRateLimitHandler('search', '5 minutes'),
 });
 
@@ -175,7 +176,7 @@ export const suggestionsLimiter = rateLimit({
   max: 60, // Limit each IP to 60 suggestion requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore('suggestions:'),
+  store: new RedisStore('suggestions:') as any,
   handler: createRateLimitHandler('suggestion', '5 minutes'),
 });
 
@@ -185,7 +186,7 @@ export const seedLimiter = rateLimit({
   max: 3, // Only 3 seed requests per hour
   standardHeaders: true,
   legacyHeaders: false,
-  store: new RedisStore('seed:'),
+  store: new RedisStore('seed:') as any,
   handler: createRateLimitHandler('seed', '1 hour'),
 });
 

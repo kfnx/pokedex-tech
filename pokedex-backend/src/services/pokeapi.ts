@@ -11,7 +11,7 @@ const CACHE_DURATION = {
   STATS: 7 * 24 * 60 * 60 * 1000        // 7 days for stats
 }
 
-export interface PokeAPIResponse<T> {
+export interface PokeAPIResponse {
   results: Array<{
     name: string
     url: string
@@ -21,16 +21,17 @@ export interface PokeAPIResponse<T> {
   previous: string | null
 }
 
-export async function fetchFromPokeAPI<T>(url: string): Promise<T> {
+
+export async function fetchFromPokeAPI<T = any>(url: string): Promise<T> {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`PokeAPI request failed: ${response.status}`)
   }
-  return response.json()
+  return response.json() as T
 }
 
 export async function seedBasicTypes() {
-  const typesData = await fetchFromPokeAPI<PokeAPIResponse<any>>(`${POKEAPI_BASE_URL}/type`)
+  const typesData = await fetchFromPokeAPI<PokeAPIResponse>(`${POKEAPI_BASE_URL}/type`)
 
   for (const typeRef of typesData.results) {
     const typeId = parseInt(typeRef.url.split('/').slice(-2, -1)[0])
@@ -57,7 +58,7 @@ export async function seedBasicTypes() {
 }
 
 export async function seedBasicStats() {
-  const statsData = await fetchFromPokeAPI<PokeAPIResponse<any>>(`${POKEAPI_BASE_URL}/stat`)
+  const statsData = await fetchFromPokeAPI<PokeAPIResponse>(`${POKEAPI_BASE_URL}/stat`)
 
   for (const statRef of statsData.results) {
     const statId = parseInt(statRef.url.split('/').slice(-2, -1)[0])
@@ -88,7 +89,7 @@ function isCacheFresh(lastFetched: Date | null, cacheDuration: number): boolean 
   return new Date().getTime() - lastFetched.getTime() < cacheDuration
 }
 
-export async function fetchAndStorePokemon(pokemonId: number, forceRefresh: boolean = false): Promise<any> {
+export async function fetchAndStorePokemon(pokemonId: number, forceRefresh: boolean = false): Promise<unknown> {
   try {
     const existingPokemon = await prisma.pokemon.findUnique({
       where: { id: pokemonId },
@@ -227,7 +228,7 @@ export async function fetchAndStorePokemon(pokemonId: number, forceRefresh: bool
   }
 }
 
-export async function fetchPokemonList(limit: number = 151, offset: number = 0): Promise<any[]> {
+export async function fetchPokemonList(limit: number = 151, offset: number = 0): Promise<unknown[]> {
   try {
     const pokemonInDb = await prisma.pokemon.findMany({
       where: {

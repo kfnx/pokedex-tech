@@ -27,7 +27,6 @@ const statDescriptions: Record<string, string> = {
 
 export function StatsTab({ pokemon }: StatsTabProps) {
   const borderColor = '#333333';
-  const textColor = '#FFFFFF';
 
   const getStatColor = (value: number) => {
     if (value >= 150) return '#4CAF50'; // Green

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { StyleSheet, Pressable } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
@@ -11,7 +11,6 @@ interface ErrorViewProps {
 
 export function ErrorView({ error, onRetry, title = 'Something went wrong' }: ErrorViewProps) {
   const backgroundColor = '#000000';
-  const textColor = '#FFFFFF';
   const borderColor = '#333333';
 
   return (

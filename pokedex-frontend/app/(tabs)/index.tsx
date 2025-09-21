@@ -4,9 +4,7 @@ import {
   FlatList,
   ActivityIndicator,
   View,
-  TextInput,
   RefreshControl,
-  Text,
   useWindowDimensions
 } from 'react-native';
 import { Image } from 'expo-image';
@@ -37,7 +35,6 @@ export default function HomeScreen() {
     loading,
     loadingMore,
     error,
-    hasMore,
     loadMore,
   } = useInfinitePokemonList({
     limit: 20,
