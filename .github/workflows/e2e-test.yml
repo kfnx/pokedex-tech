@@ -3,20 +3,8 @@ name: E2E test with Playwright
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'pokedex-frontend/**'
-      - 'pokedex-backend/**'
-      - 'e2e/**'
-      - '.github/workflows/e2e-test.yml'
-      - '.github/workflows/deploy.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'pokedex-frontend/**'
-      - 'pokedex-backend/**'
-      - 'e2e/**'
-      - '.github/workflows/e2e-test.yml'
-      - '.github/workflows/deploy.yml'
 
 jobs:
   test:
