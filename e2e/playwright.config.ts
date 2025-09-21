@@ -29,7 +29,9 @@ export default defineConfig({
       timeout: 120 * 1000,
       env: {
         PORT: '3000',
-        NODE_ENV: 'test'
+        NODE_ENV: 'test',
+        DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/pokedex_test',
+        DIRECT_URL: process.env.DIRECT_URL || 'postgresql://postgres:postgres@localhost:5432/pokedex_test'
       }
     },
     {

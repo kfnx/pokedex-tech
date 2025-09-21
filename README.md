@@ -9,6 +9,9 @@ A full-stack Pokédex application with React Native frontend, Express.js backend
 # Start all services (require docker)
 docker-compose up -d
 
+# run migration and seed
+migrate-docker-pg.sh
+
 # Access the application
 Frontend: http://localhost:8081
 Backend API Docs: http://localhost:3000/docs
@@ -45,14 +48,12 @@ pokedex-voltron/
 - **Framework**: Express.js + TypeScript
 - **Database**: PostgreSQL + Prisma ORM
 - **Cache**: Redis (rate limiting)
-- **API**: RESTful with Swagger/OpenAPI docs
-- **External**: PokeAPI integration
+- **Docs**: Swagger/OpenAPI docs
 
 ### Frontend
 - **Framework**: React Native + Expo
 - **Navigation**: Expo Router (file-based)
 - **Styling**: React Native StyleSheet
-- **State**: React hooks with custom data fetching
 
 ## 🔧 Development Commands
 
@@ -67,6 +68,8 @@ bun prisma seed      # seed pokemon data in postgres
 bun run dev          # Development server (:3000)
 bun run build        # Build application
 bun test             # Run unit tests
+bun typecheck        # Check typescript errors
+bun lint             # ESLint
 bun prisma studio    # Database GUI
 ```
 
@@ -76,13 +79,20 @@ bun install          # Install dependencies
 bun start            # Expo development server
 bun run web          # Web version (:8081)
 bun test             # Run unit tests
-bun run lint         # ESLint
+bun typecheck        # Check typescript errors
+bun lint             # ESLint
 ```
 
 ### E2E Tests (`e2e/`)
+
 ```bash
+# make sure postgres and redis running, migration executed, seed generated
+docker compose up postgres redis -d
+./migrate-docker-pg.sh
+
 npm install          # Install dependencies
-npm test             # Run Playwright tests
+npm test             # Run Playwright tests (require postgres and redis up -> docker compose up postgres redis -d)
+npm test:docker      # Run Playwright tests
 npm run test:ui      # Tests with UI
 ```
 
@@ -125,27 +135,36 @@ docker-compose -f docker-compose.production.yml up -d
 
 ## 🧪 Testing
 
-### Backend Tests (39 tests)
+### Services check
 ```bash
-cd pokedex-backend
-bun test                                # All tests
-bun test tests/utils/                   # Utility functions
-bun test tests/services/                # Service layer
+node test-service.js
 ```
 
-### Frontend Tests (14 tests)
+### Backend Unit Tests (require database and backend service running)
+```bash
+cd pokedex-backend
+bun test
+```
+
+### Frontend Unit Tests
 ```bash
 cd pokedex-frontend
-npm test                                # All tests
-npx jest __tests__/basic.test.ts        # Core functionality
+bun test
 ```
 
 ### E2E Tests
 ```bash
 cd e2e
-npm test                                # Full user journey tests
-npm run test:headed                     # With browser UI
+bun run test
 ```
+
+## CI / CD
+
+github workflows:
+- Lint and Typecheck
+- Unit Test
+- E2E test with Playwright
+- Deploy
 
 ## 🔧 Configuration
 
@@ -177,16 +196,10 @@ bunx prisma generate
 ## 🚀 Deployment Environments
 
 ### Local Development
-- Backend: `http://localhost:3001` (or `:3000` in Docker)
+- Backend: `http://localhost:3000`
 - Frontend: `http://localhost:8081`
 - Database: PostgreSQL on `:5432`
 - Cache: Redis on `:6379`
-
-### Docker Compose
-- All services containerized
-- Automatic health checks
-- Persistent data volumes
-- Network isolation
 
 ### Kubernetes
 - Scalable deployment (2 replicas each)

@@ -3,8 +3,16 @@ name: Lint and Typecheck
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'pokedex-frontend/**'
+      - 'pokedex-backend/**'
+      - '.github/workflows/lint-and-typecheck.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'pokedex-frontend/**'
+      - 'pokedex-backend/**'
+      - '.github/workflows/lint-and-typecheck.yml'
 
 jobs:
   lint-and-type-check:

@@ -3,8 +3,16 @@ name: Unit Test
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'pokedex-frontend/**'
+      - 'pokedex-backend/**'
+      - '.github/workflows/unit-test.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'pokedex-frontend/**'
+      - 'pokedex-backend/**'
+      - '.github/workflows/unit-test.yml'
 
 jobs:
   unit-tests:
