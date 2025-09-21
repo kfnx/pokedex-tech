@@ -14,9 +14,50 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  check-prerequisites:
     runs-on: ubuntu-22.04
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      all-success: ${{ steps.check.outputs.all-success }}
+    steps:
+      - name: Check all workflows succeeded
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const requiredWorkflows = [
+              'Lint and Typecheck',
+              'Unit Test',
+              'E2E test with Playwright'
+            ];
+
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: context.payload.workflow_run.head_sha,
+              per_page: 100
+            });
+
+            const workflowResults = {};
+            for (const run of runs.workflow_runs) {
+              if (requiredWorkflows.includes(run.name) && run.head_sha === context.payload.workflow_run.head_sha) {
+                workflowResults[run.name] = run.conclusion;
+              }
+            }
+
+            console.log('Workflow results:', workflowResults);
+
+            const allSuccess = requiredWorkflows.every(name =>
+              workflowResults[name] === 'success'
+            );
+
+            console.log('All workflows successful:', allSuccess);
+            core.setOutput('all-success', allSuccess);
+
+  build-and-push:
+    needs: check-prerequisites
+    runs-on: ubuntu-22.04
+    if: ${{ needs.check-prerequisites.outputs.all-success == 'true' }}
     permissions:
       contents: read
       packages: write
@@ -114,5 +155,6 @@ jobs:
 
             # Deploy with Docker Compose
             docker compose -f docker-compose.production.yml pull
+            docker compose -f docker-compose.production.yml down || true
             docker compose -f docker-compose.production.yml up -d --force-recreate
             docker system prune -f

@@ -9,8 +9,6 @@ services:
       - "${FRONTEND_PORT:-80}:8081"
     environment:
       - BACKEND_API_URL=${BACKEND_URL:-http://localhost:3000}
-    networks:
-      - pokedex-network
     depends_on:
       - backend
     restart: unless-stopped
@@ -27,8 +25,6 @@ services:
       - "${BACKEND_PORT:-3000}:3000"
     env_file:
       - ./pokedex-backend/.env
-    networks:
-      - pokedex-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
@@ -51,8 +47,6 @@ services:
     depends_on:
       - frontend
       - backend
-    networks:
-      - pokedex-network
     restart: unless-stopped
 
   # Watchtower for auto-updates (optional)
@@ -67,6 +61,3 @@ services:
       - WATCHTOWER_LABEL_ENABLE=true
     restart: unless-stopped
 
-networks:
-  pokedex-network:
-    driver: bridge
