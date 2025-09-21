@@ -145,10 +145,10 @@ const createRateLimitHandler = (limitType: string, retryAfter: string) => {
   };
 };
 
-// General API rate limiter - 300 requests per 10 minutes per IP (more lenient in test/dev)
+// General API rate limiter - 300 requests per 10 minutes per IP
 export const generalLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
-  max: process.env.NODE_ENV === 'test' ? 1000 : 300, // Higher limit for testing
+  max: 300,
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   store: new RedisStore('general:') as any,
