@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Frontend (Expo React Native)
-- `cd pokedex-frontend && npm install` - Install frontend dependencies
-- `cd pokedex-frontend && npm start` - Start Expo development server
-- `cd pokedex-frontend && npm run web` - Run web version
-- `cd pokedex-frontend && npm run android` - Run Android version
-- `cd pokedex-frontend && npm run ios` - Run iOS version
-- `cd pokedex-frontend && npm run lint` - Run ESLint
+- `cd pokedex-frontend && bun install` - Install frontend dependencies
+- `cd pokedex-frontend && bun start` - Start Expo development server
+- `cd pokedex-frontend && bun run web` - Run web version
+- `cd pokedex-frontend && bun run android` - Run Android version
+- `cd pokedex-frontend && bun run ios` - Run iOS version
+- `cd pokedex-frontend && bun run lint` - Run ESLint
 
 ### Backend (Express.js + Bun)
 - `cd pokedex-backend && bun install` - Install backend dependencies
@@ -19,9 +19,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `cd pokedex-backend && bun run start` - Run production server
 
 ### Backend Database (Prisma + PostgreSQL)
-- `cd pokedex-backend && bunx prisma migrate dev` - Run database migrations
-- `cd pokedex-backend && bunx prisma generate` - Generate Prisma client
-- `cd pokedex-backend && bunx prisma studio` - Open database GUI
+- `cd pokedex-backend && npx prisma migrate dev` - Run database migrations
+- `cd pokedex-backend && npx prisma generate` - Generate Prisma client
+- `cd pokedex-backend && npx prisma studio` - Open database GUI
 
 ### End-to-End Testing (Playwright)
 - `cd e2e && npm install` - Install e2e dependencies
@@ -48,8 +48,8 @@ pokedex-voltron/
 - **Responsive Design**: Adaptive grid layout (1-3 columns based on screen size)
 - **Key Features**: Infinite scroll, pull-to-refresh, skeleton loading
 
-### Backend Architecture (Express.js + Bun + Prisma)
-- **Runtime**: Bun for fast JavaScript execution
+### Backend Architecture (Express.js + Node.js + Prisma)
+- **Runtime**: Node.js with TypeScript
 - **API Layer**: Express.js with CORS configured for Expo
 - **Database**: PostgreSQL via Supabase with Prisma ORM
 - **Caching Strategy**: Intelligent cache with different TTLs:

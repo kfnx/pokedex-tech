@@ -28,4 +28,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD bun run curl -f http://localhost:3000/health || exit 1
 
 # Run database migrations and start the server
-CMD bunx prisma migrate deploy && bun run start
+CMD ["bun", "run", "start"]

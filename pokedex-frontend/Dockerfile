@@ -1,18 +1,21 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Build stage - Use Node for Expo compatibility
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install Bun globally for package management
+RUN npm install -g bun@latest
 
-# Install dependencies
-RUN npm ci --legacy-peer-deps
+# Copy package files and lock file
+COPY package.json bun.lock ./
+
+# Install dependencies using Bun
+RUN bun install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
-# Build the Expo web app
+# Build the Expo web app using npx (Metro needs Node runtime)
 RUN npx expo export --platform web
 
 # Production stage
