@@ -1,7 +1,7 @@
 services:
   frontend:
     container_name: pokedex-frontend
-    image: ${DOCKER_REGISTRY}/pokedex-frontend:${VERSION:-latest}
+    image: ${DOCKER_REGISTRY}/${GITHUB_REPOSITORY}-frontend:${VERSION:-latest}
     build:
       context: ./pokedex-frontend
       dockerfile: Dockerfile
@@ -19,7 +19,7 @@ services:
 
   backend:
     container_name: pokedex-backend
-    image: ${DOCKER_REGISTRY}/pokedex-backend:${VERSION:-latest}
+    image: ${DOCKER_REGISTRY}/${GITHUB_REPOSITORY}-backend:${VERSION:-latest}
     build:
       context: ./pokedex-backend
       dockerfile: Dockerfile

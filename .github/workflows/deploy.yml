@@ -107,6 +107,11 @@ jobs:
               echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> pokedex-backend/.env
             fi
 
+            # Set environment variables for Docker Compose
+            export DOCKER_REGISTRY=${{ env.DOCKER_REGISTRY }}
+            export GITHUB_REPOSITORY=${{ github.repository }}
+            export VERSION=latest
+
             # Deploy with Docker Compose
             docker compose -f docker-compose.production.yml pull
             docker compose -f docker-compose.production.yml up -d --force-recreate
