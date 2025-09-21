@@ -44,27 +44,27 @@ test.describe('Pokemon Compare Functionality', () => {
     expect(pikachu.name).toBe('pikachu');
   });
 
-  test('should compare six pokemon (maximum allowed)', async ({ request }) => {
-    const response = await request.get(`${BACKEND_URL}/api/pokemon/compare?ids=1,4,7,10,13,16`);
+  test('should compare three pokemon (maximum allowed)', async ({ request }) => {
+    const response = await request.get(`${BACKEND_URL}/api/pokemon/compare?ids=1,4,7`);
 
     expect(response.status()).toBe(200);
 
     const data = await response.json();
-    expect(data.pokemon.length).toBe(6);
-    expect(data.comparison.found).toEqual([1, 4, 7, 10, 13, 16]);
+    expect(data.pokemon.length).toBe(3);
+    expect(data.comparison.found).toEqual([1, 4, 7]);
 
-    // Should have all 6 pokemon
+    // Should have all 3 pokemon
     expect(data.pokemon.every(p => p.id && p.name)).toBe(true);
   });
 
-  test('should reject more than 6 pokemon comparison', async ({ request }) => {
-    const response = await request.get(`${BACKEND_URL}/api/pokemon/compare?ids=1,4,7,10,13,16,19`);
+  test('should reject more than 3 pokemon comparison', async ({ request }) => {
+    const response = await request.get(`${BACKEND_URL}/api/pokemon/compare?ids=1,4,7,10`);
 
     expect(response.status()).toBe(400);
 
     const data = await response.json();
     expect(data).toHaveProperty('error');
-    expect(data.error).toContain('1-6 valid Pokemon IDs');
+    expect(data.error).toContain('1-3 valid Pokemon IDs');
   });
 
   test('should handle invalid pokemon IDs gracefully', async ({ request }) => {

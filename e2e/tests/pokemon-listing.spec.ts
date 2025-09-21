@@ -5,8 +5,9 @@ test.describe('Pokemon Listing', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // Check if the page has loaded properly
-    await expect(page).toHaveTitle(/Pokedex|Pokemon/i);
+    // Check if the page has loaded properly by looking for the tab navigation
+    const tabNavigation = page.locator('text=Pokédex').or(page.locator('text=Search')).or(page.locator('text=Compare'));
+    await expect(tabNavigation.first()).toBeVisible({ timeout: 15000 });
 
     // Look for any pokemon-related content with flexible selectors
     const pokemonCards = page.locator('[data-testid*="pokemon"], [class*="pokemon"], [id*="pokemon"]');

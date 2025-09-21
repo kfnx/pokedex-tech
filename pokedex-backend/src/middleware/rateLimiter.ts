@@ -17,8 +17,7 @@ async function getRedisClient() {
     redisClient = createClient({
       url: redisUrl,
       socket: {
-        connectTimeout: 5000,
-        lazyConnect: true,
+        connectTimeout: 5000
       }
     });
 
@@ -112,20 +111,51 @@ class RedisStore {
   }
 }
 
-// General API rate limiter - 100 requests per 15 minutes per IP
+// Custom rate limit handler for consistent error responses
+const createRateLimitHandler = (limitType: string, retryAfter: string) => {
+  return (req: any, res: any) => {
+    const resetTime = new Date(Date.now() + res.getHeader('RateLimit-Reset') * 1000);
+
+    // Log rate limit violation
+    console.warn(`Rate limit exceeded for ${limitType}:`, {
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      path: req.path,
+      method: req.method,
+      limit: res.getHeader('RateLimit-Limit'),
+      remaining: res.getHeader('RateLimit-Remaining'),
+      resetTime: resetTime.toISOString(),
+      timestamp: new Date().toISOString()
+    });
+
+    res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: `Too many ${limitType} requests from this IP address. Please try again later.`,
+      details: {
+        limit: parseInt(res.getHeader('RateLimit-Limit')) || 0,
+        remaining: parseInt(res.getHeader('RateLimit-Remaining')) || 0,
+        resetTime: resetTime.toISOString(),
+        retryAfter: retryAfter,
+        requestsAllowed: `${res.getHeader('RateLimit-Limit')} requests per ${retryAfter}`
+      },
+      statusCode: 429,
+      timestamp: new Date().toISOString()
+    });
+  };
+};
+
+// General API rate limiter - 300 requests per 10 minutes per IP (more lenient in test/dev)
 export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: {
-    error: 'Too many requests from this IP, please try again later.',
-    retryAfter: '15 minutes'
-  },
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: process.env.NODE_ENV === 'test' ? 1000 : 300, // Higher limit for testing
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   store: new RedisStore('general:'),
+  handler: createRateLimitHandler('general API', '10 minutes'),
   skip: (req) => {
-    // Skip rate limiting for health checks
-    return req.path === '/health' || req.path === '/health/ready';
+    // Skip rate limiting for health checks only
+    const isHealthCheck = req.path === '/health' || req.path === '/health/ready';
+    return isHealthCheck;
   }
 });
 
@@ -133,39 +163,30 @@ export const generalLimiter = rateLimit({
 export const searchLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 30, // Limit each IP to 30 search requests per windowMs
-  message: {
-    error: 'Too many search requests from this IP, please try again later.',
-    retryAfter: '5 minutes'
-  },
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore('search:'),
+  handler: createRateLimitHandler('search', '5 minutes'),
 });
 
 // Suggestions API rate limiter - 60 requests per 5 minutes per IP
 export const suggestionsLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 60, // Limit each IP to 60 suggestion requests per windowMs
-  message: {
-    error: 'Too many suggestion requests from this IP, please try again later.',
-    retryAfter: '5 minutes'
-  },
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore('suggestions:'),
+  handler: createRateLimitHandler('suggestion', '5 minutes'),
 });
 
 // Seed API rate limiter - Very strict, only 3 requests per hour
 export const seedLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 3, // Only 3 seed requests per hour
-  message: {
-    error: 'Seed endpoint is rate limited. Please wait before trying again.',
-    retryAfter: '1 hour'
-  },
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore('seed:'),
+  handler: createRateLimitHandler('seed', '1 hour'),
 });
 
 // Helper function to gracefully close Redis connection
