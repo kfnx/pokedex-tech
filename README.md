@@ -7,7 +7,7 @@ A full-stack Pokédex application with React Native frontend, Express.js backend
 ### Development Setup
 ```bash
 # Start all services (require docker)
-docker-compose up -d
+docker compose up -d
 
 # run migration and seed
 migrate-docker-pg.sh

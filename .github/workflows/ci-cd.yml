@@ -181,9 +181,9 @@ jobs:
             cd ~/pokedex-voltron
             git pull origin main
 
-            # Deploy with docker-compose
-            docker-compose down || true
-            docker-compose up -d --build
+            # Deploy with docker compose
+            docker compose down || true
+            docker compose up -d --build
 
             # Clean up
             docker system prune -f
