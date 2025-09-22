@@ -17,10 +17,10 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Accept BACKEND_API_URL as build argument and set as ENV for the build
+# Accept EXPO_PUBLIC_BACKEND_API_URL as build argument and set as ENV for the build
 # Expo requires EXPO_PUBLIC_ prefix for client-side environment variables
-ARG BACKEND_API_URL=""
-ENV EXPO_PUBLIC_BACKEND_API_URL=${BACKEND_API_URL}
+ARG EXPO_PUBLIC_BACKEND_API_URL=""
+ENV EXPO_PUBLIC_BACKEND_API_URL=${EXPO_PUBLIC_BACKEND_API_URL}
 
 # Build the Expo web app using npx (Metro needs Node runtime)
 RUN npx expo export --platform web

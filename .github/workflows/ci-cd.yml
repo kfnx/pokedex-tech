@@ -97,6 +97,7 @@ jobs:
       env:
         DATABASE_URL: ${{ matrix.project == 'backend' && 'postgresql://postgres:postgres@localhost:5432/pokedex_test' || '' }}
         DIRECT_URL: ${{ matrix.project == 'backend' && 'postgresql://postgres:postgres@localhost:5432/pokedex_test' || '' }}
+        EXPO_PUBLIC_BACKEND_API_URL: ${{ matrix.project == 'frontend' && 'http://localhost:3000' || '' }}
       run: bun test
 
   e2e-test:
@@ -148,6 +149,7 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pokedex_test
         DIRECT_URL: postgresql://postgres:postgres@localhost:5432/pokedex_test
+        EXPO_PUBLIC_BACKEND_API_URL: http://localhost:3000
       run: bun run test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
@@ -184,7 +186,7 @@ jobs:
             # Deploy with docker compose production
             export DOCKER_REGISTRY=ghcr.io
             export GITHUB_REPOSITORY=${{ github.repository }}
-            export BACKEND_API_URL="https://server.kafin.dev"
+            export EXPO_PUBLIC_BACKEND_API_URL="https://server.kafin.dev"
             docker compose -f docker-compose.production.yml down || true
             docker compose -f docker-compose.production.yml up -d --build
 
