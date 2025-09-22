@@ -59,9 +59,10 @@ services:
     build:
       context: ./pokedex-frontend
       dockerfile: Dockerfile
+      args:
+        BACKEND_API_URL: "http://localhost:3000"
     container_name: pokedex-frontend
     environment:
-      BACKEND_API_URL: "http://localhost:3000"
       NODE_ENV: production
     ports:
       - "8081:8081"

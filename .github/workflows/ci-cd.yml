@@ -184,6 +184,7 @@ jobs:
             # Deploy with docker compose production
             export DOCKER_REGISTRY=ghcr.io
             export GITHUB_REPOSITORY=${{ github.repository }}
+            export BACKEND_API_URL="https://server.kafin.dev"
             docker compose -f docker-compose.production.yml down || true
             docker compose -f docker-compose.production.yml up -d --build
 
