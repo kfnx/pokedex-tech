@@ -2,9 +2,12 @@
 
 A full-stack Pokédex application with React Native frontend, Express.js backend, and comprehensive deployment options.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Development Setup
+
+Make sure you have docker and bun installed. https://bun.com/docs/installation#installing
+
 ```bash
 # Start all services (require docker)
 docker compose up -d
@@ -29,7 +32,7 @@ cd pokedex-frontend && npm install && npm start
 cd e2e && npm install && npm test
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 pokedex-voltron/
@@ -41,7 +44,7 @@ pokedex-voltron/
 └── docker-compose.yml   # Local development environment
 ```
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Backend
 - **Runtime**: Bun
@@ -55,7 +58,7 @@ pokedex-voltron/
 - **Navigation**: Expo Router (file-based)
 - **Styling**: React Native StyleSheet
 
-## 🔧 Development Commands
+## Development Commands
 
 install bun https://bun.com/docs/installation#installing
 
@@ -96,13 +99,13 @@ npm test:docker      # Run Playwright tests
 npm run test:ui      # Tests with UI
 ```
 
-## 🐳 Deployment Options
+## Deployment Options
 
 ### Docker Compose (Recommended for Development)
 ```bash
-docker-compose up -d                    # Start all services
-docker-compose logs -f backend          # View backend logs
-docker-compose down                     # Stop services
+docker compose up -d                    # Start all services
+docker compose logs -f backend          # View backend logs
+docker compose down                     # Stop services
 ```
 
 ### Kubernetes
@@ -115,7 +118,7 @@ kubectl get pods -n pokedex             # Check status
 
 ### Production
 ```bash
-docker-compose -f docker-compose.production.yml up -d
+docker compose -f docker-compose.production.yml up -d
 ```
 
 ## 📋 API Endpoints
@@ -160,13 +163,15 @@ bun run test
 
 ## CI / CD
 
+<img src="https://github.com/kfnx/pokedex-tech/blob/main/cicd.png?raw=true" />
+
 github workflows:
 - Lint and Typecheck
 - Unit Test
 - E2E test with Playwright
 - Deploy
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 

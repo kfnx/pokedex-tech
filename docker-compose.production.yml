@@ -30,7 +30,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - BACKEND_API_URL=${BACKEND_API_URL:-http://server.kafin.dev:3000}
+      - BACKEND_API_URL=${BACKEND_API_URL:-https://server.kafin.dev:3000}
     depends_on:
       - backend
     restart: unless-stopped
