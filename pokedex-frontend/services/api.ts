@@ -1,4 +1,6 @@
-export const API_BASE_URL = process.env.BACKEND_API_URL || 'http://localhost:3000';
+// Expo automatically injects EXPO_PUBLIC_ prefixed env vars
+// Falls back to empty string for relative URLs when using nginx proxy
+export const API_BASE_URL = process.env.EXPO_PUBLIC_BACKEND_API_URL || '';
 
 interface PaginatedResponse<T> {
   data: T[];
